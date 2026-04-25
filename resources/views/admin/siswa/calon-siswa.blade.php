@@ -26,17 +26,20 @@
 
 <!-- Alur Info -->
 <div style="background:linear-gradient(135deg,#e3f2fd,#bbdefb);border-radius:10px;padding:16px 20px;margin-bottom:22px;border-left:4px solid #2196f3;">
-    <div style="font-size:13px;font-weight:700;color:#1565c0;margin-bottom:8px;"><i class="fas fa-info-circle"></i> Alur Aktivasi Siswa</div>
+    <div style="font-size:13px;font-weight:700;color:#1565c0;margin-bottom:8px;"><i class="fas fa-info-circle"></i> Alur Aktivasi Siswa (Fitur Baru!)</div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:12px;color:#1565c0;">
         <span style="background:#1565c0;color:white;padding:4px 12px;border-radius:20px;font-weight:600;">1. Daftar</span>
         <i class="fas fa-arrow-right"></i>
         <span style="background:#ff9800;color:white;padding:4px 12px;border-radius:20px;font-weight:600;">2. Calon Siswa</span>
         <i class="fas fa-arrow-right"></i>
-        <span style="background:#4caf50;color:white;padding:4px 12px;border-radius:20px;font-weight:600;">3. Bayar Pendaftaran + Aktifkan</span>
+        <span style="background:#4caf50;color:white;padding:4px 12px;border-radius:20px;font-weight:600;">3. Aktifkan + Buat Akun</span>
         <i class="fas fa-arrow-right"></i>
         <span style="background:#2196f3;color:white;padding:4px 12px;border-radius:20px;font-weight:600;">4. Siswa Aktif</span>
         <i class="fas fa-arrow-right"></i>
-        <span style="background:#9c27b0;color:white;padding:4px 12px;border-radius:20px;font-weight:600;">5. Bayar Iuran Rutin/Bulan</span>
+        <span style="background:#9c27b0;color:white;padding:4px 12px;border-radius:20px;font-weight:600;">5. Login ke Portal</span>
+    </div>
+    <div style="margin-top:8px;font-size:11px;color:#1565c0;background:rgba(255,255,255,0.7);padding:8px;border-radius:6px;">
+        <i class="fas fa-star"></i> <strong>Baru:</strong> Sekarang bisa langsung buat akun login saat aktivasi siswa!
     </div>
 </div>
 
@@ -51,7 +54,9 @@
     @if($siswas->isEmpty())
     <div style="padding:50px;text-align:center;color:#999;">
         <i class="fas fa-user-plus" style="font-size:40px;opacity:.2;display:block;margin-bottom:12px;"></i>
-        Belum ada calon siswa
+        <h5>Tidak Ada Calon Siswa</h5>
+        <p>Semua siswa sudah diaktifkan atau belum ada pendaftaran baru</p>
+
     </div>
     @else
     <div style="overflow-x:auto;">
@@ -65,6 +70,7 @@
                     <th style="padding:11px 14px;text-align:left;font-size:12px;color:#666;border-bottom:1px solid #eee;">Iuran/Bln</th>
                     <th style="padding:11px 14px;text-align:left;font-size:12px;color:#666;border-bottom:1px solid #eee;">Orang Tua</th>
                     <th style="padding:11px 14px;text-align:left;font-size:12px;color:#666;border-bottom:1px solid #eee;">Telepon</th>
+                    <th style="padding:11px 14px;text-align:left;font-size:12px;color:#666;border-bottom:1px solid #eee;">Status Akun</th>
                     <th style="padding:11px 14px;text-align:left;font-size:12px;color:#666;border-bottom:1px solid #eee;">Daftar</th>
                     <th style="padding:11px 14px;text-align:left;font-size:12px;color:#666;border-bottom:1px solid #eee;">Aksi</th>
                 </tr>
@@ -95,6 +101,18 @@
                     </td>
                     <td style="padding:11px 14px;border-bottom:1px solid #f5f5f5;font-size:13px;">{{ $s->nama_ortu }}</td>
                     <td style="padding:11px 14px;border-bottom:1px solid #f5f5f5;font-size:13px;">{{ $s->telepon }}</td>
+                    <td style="padding:11px 14px;border-bottom:1px solid #f5f5f5;">
+                        @if($s->user)
+                            <span style="background:#e8f5e9;color:#2e7d32;padding:3px 8px;border-radius:8px;font-size:11px;font-weight:600;">
+                                <i class="fas fa-user-check"></i> Akun Sudah Dibuat
+                            </span>
+                            <div style="font-size:10px;color:#666;margin-top:2px;">{{ $s->email }}</div>
+                        @else
+                            <span style="background:#ffebee;color:#c62828;padding:3px 8px;border-radius:8px;font-size:11px;font-weight:600;">
+                                <i class="fas fa-user-times"></i> Belum Ada Akun
+                            </span>
+                        @endif
+                    </td>
                     <td style="padding:11px 14px;border-bottom:1px solid #f5f5f5;font-size:12px;color:#999;">
                         {{ $s->created_at->format('d M Y') }}
                     </td>
@@ -163,6 +181,76 @@
                 </div>
             </div>
 
+            <!-- Buat Akun Login? -->
+            <div>
+                <label style="display:block;font-size:13px;font-weight:700;margin-bottom:10px;color:#333;">
+                    <i class="fas fa-user-plus"></i> Buat akun login untuk siswa?
+                </label>
+                <div style="display:flex;gap:10px;">
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid #ddd;border-radius:8px;flex:1;transition:all .2s;" id="labelBuatAkun">
+                        <input type="radio" name="buat_akun" value="ya" onchange="toggleAkun(true)" style="width:16px;height:16px;">
+                        <div>
+                            <div style="font-size:13px;font-weight:600;color:#2196f3;">Ya, Buat Akun</div>
+                            <div style="font-size:11px;color:#999;">Siswa bisa login ke portal</div>
+                        </div>
+                    </label>
+                    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px 16px;border:2px solid #ddd;border-radius:8px;flex:1;transition:all .2s;" id="labelTidakAkun">
+                        <input type="radio" name="buat_akun" value="tidak" onchange="toggleAkun(false)" style="width:16px;height:16px;">
+                        <div>
+                            <div style="font-size:13px;font-weight:600;color:#666;">Nanti Saja</div>
+                            <div style="font-size:11px;color:#999;">Buat akun di lain waktu</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Form Akun (hidden by default) -->
+            <div id="formAkun" style="display:none;background:#e3f2fd;border-radius:8px;padding:16px;gap:12px;flex-direction:column;">
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;">Email Login <span style="color:red">*</span></label>
+                    <input type="email" name="email_akun" id="emailAkun" placeholder="Masukkan email untuk login"
+                        style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;box-sizing:border-box;">
+                    <div style="font-size:11px;color:#666;margin-top:2px;">Email ini akan digunakan untuk login ke portal siswa</div>
+                </div>
+                
+                <div>
+                    <label style="display:block;font-size:12px;font-weight:600;margin-bottom:8px;">Jenis Password</label>
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:11px;">
+                            <input type="radio" name="password_type" value="default" checked style="width:14px;height:14px;">
+                            <div>
+                                <div style="font-weight:600;">Default</div>
+                                <div style="color:#999;">123456</div>
+                            </div>
+                        </label>
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:11px;">
+                            <input type="radio" name="password_type" value="tanggal_lahir" style="width:14px;height:14px;">
+                            <div>
+                                <div style="font-weight:600;">Tgl Lahir</div>
+                                <div style="color:#999;" id="previewTglLahir">ddmmyyyy</div>
+                            </div>
+                        </label>
+                        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;padding:8px;border:1px solid #ddd;border-radius:6px;font-size:11px;">
+                            <input type="radio" name="password_type" value="custom" onchange="toggleCustomPassword()" style="width:14px;height:14px;">
+                            <div>
+                                <div style="font-weight:600;">Custom</div>
+                                <div style="color:#999;">Atur sendiri</div>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="customPasswordBox" style="display:none;">
+                    <label style="display:block;font-size:12px;font-weight:600;margin-bottom:4px;">Password Custom <span style="color:red">*</span></label>
+                    <input type="text" name="custom_password" placeholder="Minimal 6 karakter"
+                        style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;box-sizing:border-box;">
+                </div>
+
+                <div style="background:#fff3e0;border-radius:6px;padding:10px 12px;font-size:12px;color:#e65100;">
+                    <i class="fas fa-info-circle"></i> Akun akan langsung bisa digunakan untuk login ke portal siswa. Password bisa diubah nanti oleh admin.
+                </div>
+            </div>
+
             <!-- Form Pembayaran (hidden by default) -->
             <div id="formBayar" style="display:none;background:#f9fbe7;border-radius:8px;padding:16px;display:none;gap:12px;flex-direction:column;">
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
@@ -211,9 +299,33 @@ function openAktivasi(id, nama, kelas, harga) {
     document.getElementById('kelasInfoText').innerHTML =
         `<i class="fas fa-chalkboard"></i> Kelas: <strong>${kelas}</strong> &nbsp;|&nbsp; <i class="fas fa-money-bill"></i> Iuran rutin: <strong>Rp ${harga.toLocaleString('id-ID')}/bulan</strong>`;
     document.getElementById('jumlahPendaftaran').value = harga > 0 ? harga : '';
-    // Reset radio
+    
+    // Reset form
     document.querySelectorAll('input[name="bayar_pendaftaran"]').forEach(r => r.checked = false);
+    document.querySelectorAll('input[name="buat_akun"]').forEach(r => r.checked = false);
+    document.querySelector('input[name="password_type"][value="default"]').checked = true;
     document.getElementById('formBayar').style.display = 'none';
+    document.getElementById('formAkun').style.display = 'none';
+    document.getElementById('customPasswordBox').style.display = 'none';
+    
+    // Set email default dari data siswa jika ada
+    const siswaData = @json($siswas->keyBy('id'));
+    const siswa = siswaData[id];
+    if (siswa && siswa.email) {
+        document.getElementById('emailAkun').value = siswa.email;
+    } else {
+        document.getElementById('emailAkun').value = '';
+    }
+    
+    // Update preview tanggal lahir
+    if (siswa && siswa.tanggal_lahir) {
+        const tglLahir = new Date(siswa.tanggal_lahir);
+        const preview = String(tglLahir.getDate()).padStart(2, '0') + 
+                       String(tglLahir.getMonth() + 1).padStart(2, '0') + 
+                       tglLahir.getFullYear();
+        document.getElementById('previewTglLahir').textContent = preview;
+    }
+    
     document.getElementById('aktivasiModal').style.display = 'flex';
 }
 
@@ -227,6 +339,23 @@ function toggleBayar(show) {
     document.getElementById('labelYa').style.border = show ? '2px solid #4caf50' : '2px solid #ddd';
     document.getElementById('labelTidak').style.border = !show ? '2px solid #ff9800' : '2px solid #ddd';
 }
+
+function toggleAkun(show) {
+    const box = document.getElementById('formAkun');
+    box.style.display = show ? 'flex' : 'none';
+    document.getElementById('labelBuatAkun').style.border = show ? '2px solid #2196f3' : '2px solid #ddd';
+    document.getElementById('labelTidakAkun').style.border = !show ? '2px solid #ff9800' : '2px solid #ddd';
+}
+
+function toggleCustomPassword() {
+    const isCustom = document.querySelector('input[name="password_type"][value="custom"]').checked;
+    document.getElementById('customPasswordBox').style.display = isCustom ? 'block' : 'none';
+}
+
+// Event listener untuk password type
+document.querySelectorAll('input[name="password_type"]').forEach(radio => {
+    radio.addEventListener('change', toggleCustomPassword);
+});
 
 document.getElementById('aktivasiModal').addEventListener('click', e => {
     if (e.target === document.getElementById('aktivasiModal')) closeAktivasi();

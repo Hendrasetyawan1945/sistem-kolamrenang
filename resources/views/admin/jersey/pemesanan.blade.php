@@ -51,15 +51,15 @@
     <form method="POST" action="{{ route('admin.pemesanan.store') }}">
         @csrf
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:15px;margin-bottom:15px;">
-            <div>
-                <label style="display:block;font-size:13px;font-weight:600;margin-bottom:5px;">Siswa <span style="color:red">*</span></label>
-                <select name="siswa_id" required style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;box-sizing:border-box;">
-                    <option value="">-- Pilih Siswa --</option>
-                    @foreach($siswas as $s)
-                    <option value="{{ $s->id }}">{{ $s->nama }} ({{ $s->kelas }})</option>
-                    @endforeach
-                </select>
-            </div>
+                    <div>
+                        <label style="display:block;font-size:13px;font-weight:600;margin-bottom:5px;">Siswa <span style="color:red">*</span></label>
+                        <select name="siswa_id" required style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;box-sizing:border-box;">
+                            <option value="">-- Pilih Siswa --</option>
+                            @foreach($siswas as $s)
+                            <option value="{{ $s->id }}">{{ $s->nama }} ({{ $s->kelas ?? 'Tidak ada kelas' }})</option>
+                            @endforeach
+                        </select>
+                    </div>
             <div>
                 <label style="display:block;font-size:13px;font-weight:600;margin-bottom:5px;">Size <span style="color:red">*</span></label>
                 <select name="jersey_size_id" required style="width:100%;padding:8px 10px;border:1px solid #ddd;border-radius:6px;font-size:13px;box-sizing:border-box;">
@@ -165,11 +165,11 @@
                 <tr onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='white'">
                     <td style="padding:10px 14px;border-bottom:1px solid #f5f5f5;font-size:12px;">{{ $o->tanggal_pesan->format('d M Y') }}</td>
                     <td style="padding:10px 14px;border-bottom:1px solid #f5f5f5;">
-                        <div style="font-weight:600;">{{ $o->siswa->nama }}</div>
-                        <div style="font-size:11px;color:#999;">{{ $o->siswa->kelas }}</div>
+                        <div style="font-weight:600;">{{ $o->siswa->nama ?? 'Data siswa tidak ditemukan' }}</div>
+                        <div style="font-size:11px;color:#999;">{{ $o->siswa->kelas ?? 'Tidak ada kelas' }}</div>
                     </td>
                     <td style="padding:10px 14px;border-bottom:1px solid #f5f5f5;text-align:center;">
-                        <span style="background:#d32f2f;color:white;padding:3px 10px;border-radius:10px;font-weight:700;font-size:12px;">{{ $o->jerseySize->nama_size }}</span>
+                        <span style="background:#d32f2f;color:white;padding:3px 10px;border-radius:10px;font-weight:700;font-size:12px;">{{ $o->jerseySize->nama_size ?? 'N/A' }}</span>
                     </td>
                     <td style="padding:10px 14px;border-bottom:1px solid #f5f5f5;text-align:center;font-size:13px;">
                         @if($o->nomor_punggung)<strong>#{{ $o->nomor_punggung }}</strong>@endif
@@ -200,17 +200,21 @@
                             </div>
                         @else
                             @if($o->status === 'selesai' || $o->status === 'diambil')
-                            <button onclick="openBayarModal({{ $o->id }}, '{{ addslashes($o->siswa->nama) }}', {{ $o->harga ?? 0 }})"
+                            @if($o->harga && $o->harga > 0)
+                            <button onclick="openBayarModal({{ $o->id }}, '{{ addslashes($o->siswa->nama ?? 'Unknown') }}', {{ $o->harga ?? 0 }})"
                                 style="background:#4caf50;color:white;border:none;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;">
                                 <i class="fas fa-money-bill-wave"></i> Bayar
                             </button>
+                            @else
+                            <span style="background:#ffebee;color:#c62828;padding:3px 8px;border-radius:8px;font-size:10px;font-weight:700;"><i class="fas fa-exclamation-triangle"></i> Set Harga Dulu</span>
+                            @endif
                             @else
                             <span style="background:#ffebee;color:#c62828;padding:3px 8px;border-radius:8px;font-size:10px;font-weight:700;"><i class="fas fa-clock"></i> Belum Bayar</span>
                             @endif
                         @endif
                     </td>
                     <td style="padding:10px 14px;border-bottom:1px solid #f5f5f5;text-align:center;">
-                        <form method="POST" action="{{ route('admin.pemesanan.destroy', $o) }}" onsubmit="return confirm('Hapus pesanan {{ $o->siswa->nama }}?')">
+                        <form method="POST" action="{{ route('admin.pemesanan.destroy', $o) }}" onsubmit="return confirm('Hapus pesanan {{ $o->siswa->nama ?? 'siswa ini' }}?')">
                             @csrf @method('DELETE')
                             <button type="submit" style="background:#ffebee;color:#f44336;border:none;padding:5px 9px;border-radius:5px;font-size:11px;cursor:pointer;">
                                 <i class="fas fa-trash"></i>
@@ -270,7 +274,15 @@
 function openBayarModal(id, nama, harga) {
     document.getElementById('bayarForm').action = `/admin/pemesanan/${id}/bayar`;
     document.getElementById('bayarNama').textContent = 'Siswa: ' + nama;
-    document.getElementById('bayarJumlah').value = harga > 0 ? 'Rp ' + harga.toLocaleString('id-ID') : 'Belum ada harga';
+    
+    // Handle harga yang null atau 0
+    if (harga && harga > 0) {
+        document.getElementById('bayarJumlah').value = 'Rp ' + harga.toLocaleString('id-ID');
+    } else {
+        document.getElementById('bayarJumlah').value = 'Belum ada harga - silakan set harga terlebih dahulu';
+        document.getElementById('bayarJumlah').style.color = '#f44336';
+    }
+    
     document.getElementById('bayarModal').style.display = 'flex';
 }
 function closeBayarModal() { document.getElementById('bayarModal').style.display = 'none'; }

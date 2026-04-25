@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Siswa extends Model
 {
@@ -11,7 +13,7 @@ class Siswa extends Model
         'nama',
         'tanggal_lahir',
         'jenis_kelamin',
-        'kelas',
+        'kelas', // Gunakan 'kelas' bukan 'kelas_id'
         'alamat',
         'nama_ortu',
         'telepon',
@@ -43,5 +45,30 @@ class Siswa extends Model
     public function kejuaraanPembayarans(): HasMany
     {
         return $this->hasMany(KejuaraanPembayaran::class);
+    }
+
+    public function jerseyOrders(): HasMany
+    {
+        return $this->hasMany(JerseyOrder::class);
+    }
+
+    public function catatanWaktuLatihans(): HasMany
+    {
+        return $this->hasMany(CatatanWaktuLatihan::class);
+    }
+
+    public function angsurans(): HasMany
+    {
+        return $this->hasMany(Angsuran::class);
+    }
+
+    public function kelas(): BelongsTo
+    {
+        return $this->belongsTo(Kelas::class, 'kelas', 'nama_kelas');
+    }
+
+    public function user(): HasOne
+    {
+        return $this->hasOne(User::class);
     }
 }

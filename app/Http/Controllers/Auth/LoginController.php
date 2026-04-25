@@ -22,7 +22,12 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-            return redirect()->intended(route('admin.dashboard'));
+
+            return match(Auth::user()->role) {
+                'siswa' => redirect()->route('siswa.dashboard'),
+                'coach' => redirect()->route('coach.dashboard'),
+                default => redirect()->intended(route('admin.dashboard')),
+            };
         }
 
         return back()->withErrors([

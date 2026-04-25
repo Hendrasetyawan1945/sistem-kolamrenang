@@ -13,6 +13,7 @@ use App\Models\PendapatanLain;
 use App\Models\Pengeluaran;
 use App\Models\Kelas;
 use App\Models\Coach;
+use App\Helpers\EmailHelper;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -26,6 +27,15 @@ class DashboardController extends Controller
         // ── STATS ─────────────────────────────────────────────────
         $totalSiswaAktif = Siswa::where('status', 'aktif')->count();
         $totalCalonSiswa = Siswa::where('status', 'calon')->count();
+
+        // ── STATISTIK AKUN ─────────────────────────────────────────
+        $siswaAktifDenganAkun = Siswa::where('status', 'aktif')->whereHas('user')->count();
+        $siswaAktifTanpaAkun = $totalSiswaAktif - $siswaAktifDenganAkun;
+        
+        // Menggunakan helper untuk validasi email yang kompatibel dengan SQLite
+        $siswaEmailValid = EmailHelper::countValidEmails(
+            Siswa::where('status', 'aktif')->whereNotNull('email')->where('email', '!=', '')
+        );
 
         // ── TOTAL PENDAPATAN (semua sumber, sama persis dengan Rekap Keuangan) ──
         $totalPendapatan =
@@ -101,7 +111,8 @@ class DashboardController extends Controller
             'totalSiswaAktif','totalCalonSiswa','totalPendapatan','siswaBelumBayar',
             'perubahanPendapatan','siswaBaru','bulanIni','tahunIni',
             'iuranRutinHariIni','iuranInsidentilHariIni','totalBayarHariIni',
-            'ultahHariIni','kelasHariIni','totalSudahBayar','belumBayarPerKelas'
+            'ultahHariIni','kelasHariIni','totalSudahBayar','belumBayarPerKelas',
+            'siswaAktifDenganAkun','siswaAktifTanpaAkun','siswaEmailValid'
         ));
     }
 

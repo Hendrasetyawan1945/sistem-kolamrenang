@@ -35,10 +35,11 @@ class KeuanganController extends Controller
 
         $siswas = $query->orderBy('nama')->get();
 
-        // Load pembayaran untuk tahun ini
+        // Load pembayaran untuk tahun ini (hanya yang approved)
         $siswas->load(['pembayarans' => function ($q) use ($tahun) {
             $q->where('jenis_pembayaran', 'iuran_rutin')
-              ->where('tahun', $tahun);
+              ->where('tahun', $tahun)
+              ->where('status', 'approved'); // Only show approved payments
         }]);
 
         $kelasList = Siswa::where('status', 'aktif')
@@ -72,6 +73,10 @@ class KeuanganController extends Controller
                 'tanggal_bayar' => $request->tanggal_bayar,
                 'metode_pembayaran' => $request->metode_pembayaran,
                 'keterangan' => $request->keterangan,
+                'status' => 'approved', // Admin input is auto-approved
+                'input_by' => auth()->id(),
+                'approved_by' => auth()->id(),
+                'approved_at' => now(),
             ]
         );
 

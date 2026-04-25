@@ -71,7 +71,17 @@ class JerseyController extends Controller
             'harga'          => 'nullable|numeric|min:0',
         ]);
 
-        JerseyOrder::create($request->all());
+        $data = $request->all();
+        
+        // Set default values jika tidak ada
+        if (!isset($data['status'])) {
+            $data['status'] = 'dipesan';
+        }
+        if (!isset($data['status_bayar'])) {
+            $data['status_bayar'] = 'belum_bayar';
+        }
+
+        JerseyOrder::create($data);
         return back()->with('success', 'Pesanan jersey berhasil ditambahkan.');
     }
 

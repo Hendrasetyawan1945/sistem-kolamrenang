@@ -209,6 +209,13 @@
                 <i class="fas fa-sign-in-alt"></i> Masuk
             </button>
         </form>
+        
+        <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e1e1e1;">
+            <p style="color: #666; font-size: 14px; margin-bottom: 10px;">Belum punya akun?</p>
+            <a href="{{ route('daftar') }}" style="color: #667eea; text-decoration: none; font-weight: 600; font-size: 14px;">
+                <i class="fas fa-user-plus"></i> Daftar sebagai Siswa Baru
+            </a>
+        </div>
     </div>
 </body>
 </html>

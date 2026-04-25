@@ -77,7 +77,21 @@
                 @endif
             </div>
 
-            <!-- Komponen Penilaian -->
+            <!-- Form Rapor menggunakan Component -->
+            <x-rapor-form 
+                :siswa="$siswa"
+                :rapor="$rapor"
+                :templates="$templates"
+                :hadir="$hadir"
+                :totalPertemuan="$totalPertemuan"
+                :bulan="$bulan"
+                :tahun="$tahun"
+                :namaBulan="$namaBulan"
+                userRole="admin"
+                :personalBest="$personalBest"
+                :actionRoute="$rapor ? route('admin.rapor.update', $rapor) : route('admin.rapor.store')"
+                :method="$rapor ? 'PUT' : 'POST'"
+            />
             <div>
                 <div style="font-size:13px;font-weight:700;color:#333;margin-bottom:12px;"><i class="fas fa-star" style="color:#ffc107;"></i> Komponen Penilaian</div>
                 <div id="komponenContainer" style="display:grid;gap:10px;">

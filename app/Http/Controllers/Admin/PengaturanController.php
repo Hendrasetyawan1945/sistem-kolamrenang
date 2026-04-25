@@ -101,29 +101,183 @@ class PengaturanController extends Controller
     public function storeCoach(Request $request)
     {
         $request->validate([
-            'nama'   => 'required|string|max:255',
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
             'status' => 'required|in:aktif,cuti,nonaktif',
+            'custom_password' => 'nullable|string|min:6',
+            'password_option' => 'required|in:keep,manual',
         ]);
 
-        Coach::create($request->all());
-        return back()->with('success', 'Coach berhasil ditambahkan.');
+        try {
+            \DB::beginTransaction();
+
+            // Generate atau gunakan password custom
+            $password = ($request->password_option === 'manual' && $request->custom_password) 
+                ? $request->custom_password 
+                : \Str::random(8);
+            
+            // Buat akun User terlebih dahulu
+            $user = \App\Models\User::create([
+                'name' => $request->nama,
+                'email' => $request->email,
+                'password' => \Hash::make($password),
+                'role' => 'coach'
+            ]);
+
+            // Buat data Coach dengan password info
+            $coachData = $request->except(['custom_password', 'password_option']);
+            $coachData['current_password'] = $password; // Store plain password for display
+            $coachData['password_updated_at'] = now();
+            
+            $coach = Coach::create($coachData);
+            
+            // Link user dengan coach
+            $user->update(['coach_id' => $coach->id]);
+
+            \DB::commit();
+
+            // Pesan sukses dengan kredensial
+            $passwordType = ($request->password_option === 'manual') ? 'manual' : 'otomatis';
+            $message = "Coach berhasil ditambahkan! Kredensial login: Email: {$request->email} | Password ({$passwordType}): {$password}";
+            
+            return back()->with('success', $message);
+
+        } catch (\Exception $e) {
+            \DB::rollback();
+            return back()->withErrors(['error' => 'Gagal membuat coach: ' . $e->getMessage()]);
+        }
     }
 
     public function updateCoach(Request $request, Coach $coach)
     {
         $request->validate([
-            'nama'   => 'required|string|max:255',
+            'nama' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . ($coach->user->id ?? 'NULL'),
             'status' => 'required|in:aktif,cuti,nonaktif',
+            'custom_password' => 'nullable|string|min:6',
+            'password_option' => 'required|in:keep,manual',
         ]);
 
-        $coach->update($request->all());
-        return back()->with('success', 'Data coach berhasil diperbarui.');
+        try {
+            \DB::beginTransaction();
+
+            // Update data coach
+            $coachData = $request->except(['custom_password', 'password_option']);
+            $coach->update($coachData);
+
+            // Update atau buat akun user jika belum ada
+            if ($coach->user) {
+                // Update user yang sudah ada
+                $coach->user->update([
+                    'name' => $request->nama,
+                    'email' => $request->email,
+                ]);
+
+                // Update password jika dipilih manual dan ada custom password
+                if ($request->password_option === 'manual' && $request->custom_password) {
+                    $coach->user->update(['password' => \Hash::make($request->custom_password)]);
+                    $coach->update([
+                        'current_password' => $request->custom_password,
+                        'password_updated_at' => now()
+                    ]);
+                    
+                    $message = "Data coach berhasil diperbarui dan password diubah menjadi: {$request->custom_password}";
+                    \DB::commit();
+                    return back()->with('success', $message);
+                } elseif ($request->password_option === 'keep' && !$coach->current_password) {
+                    // Jika pilih keep tapi belum ada password, generate baru
+                    $password = \Str::random(8);
+                    $coach->user->update(['password' => \Hash::make($password)]);
+                    $coach->update([
+                        'current_password' => $password,
+                        'password_updated_at' => now()
+                    ]);
+                    
+                    $message = "Data coach berhasil diperbarui dan password baru dibuat: {$password}";
+                    \DB::commit();
+                    return back()->with('success', $message);
+                }
+            } else {
+                // Buat user baru jika belum ada
+                $password = ($request->password_option === 'manual' && $request->custom_password) 
+                    ? $request->custom_password 
+                    : \Str::random(8);
+                    
+                $user = \App\Models\User::create([
+                    'name' => $request->nama,
+                    'email' => $request->email,
+                    'password' => \Hash::make($password),
+                    'role' => 'coach',
+                    'coach_id' => $coach->id
+                ]);
+
+                // Update coach dengan password info
+                $coach->update([
+                    'current_password' => $password,
+                    'password_updated_at' => now()
+                ]);
+
+                $message = "Data coach berhasil diperbarui dan akun login dibuat! Password: {$password}";
+                \DB::commit();
+                return back()->with('success', $message);
+            }
+
+            \DB::commit();
+            return back()->with('success', 'Data coach berhasil diperbarui.');
+
+        } catch (\Exception $e) {
+            \DB::rollback();
+            return back()->withErrors(['error' => 'Gagal update coach: ' . $e->getMessage()]);
+        }
     }
 
     public function destroyCoach(Coach $coach)
     {
-        $coach->delete();
-        return back()->with('success', 'Coach berhasil dihapus.');
+        try {
+            \DB::beginTransaction();
+            
+            // Hapus user terkait jika ada
+            if ($coach->user) {
+                $coach->user->delete();
+            }
+            
+            // Hapus coach
+            $coach->delete();
+            
+            \DB::commit();
+            return back()->with('success', 'Coach berhasil dihapus.');
+            
+        } catch (\Exception $e) {
+            \DB::rollback();
+            return back()->withErrors(['error' => 'Gagal hapus coach: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Reset password coach
+     */
+    public function resetCoachPassword(Coach $coach)
+    {
+        if (!$coach->user) {
+            return back()->withErrors(['error' => 'Coach belum memiliki akun login.']);
+        }
+
+        try {
+            $newPassword = \Str::random(8);
+            $coach->user->update(['password' => \Hash::make($newPassword)]);
+            
+            // Update coach password info
+            $coach->update([
+                'current_password' => $newPassword,
+                'password_updated_at' => now()
+            ]);
+            
+            $message = "Password coach {$coach->nama} berhasil direset! Password baru: {$newPassword}";
+            return back()->with('success', $message);
+            
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Gagal reset password: ' . $e->getMessage()]);
+        }
     }
 
     // ── LAINNYA ───────────────────────────────────────────────────

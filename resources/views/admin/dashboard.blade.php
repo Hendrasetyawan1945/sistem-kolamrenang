@@ -85,6 +85,44 @@ $hariIni = ['Sunday'=>'Minggu','Monday'=>'Senin','Tuesday'=>'Selasa','Wednesday'
     </a>
 </div>
 
+<!-- Widget Akun Siswa -->
+@if($siswaAktifTanpaAkun > 0)
+<div style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:20px;border-radius:12px;margin-bottom:24px;">
+    <div style="display:flex;justify-content:between;align-items:center;flex-wrap:wrap;gap:15px;">
+        <div>
+            <h3 style="margin:0 0 8px 0;font-size:18px;font-weight:600;display:flex;align-items:center;gap:8px;">
+                <i class="fas fa-user-cog"></i> Kelola Akun Siswa
+            </h3>
+            <p style="margin:0 0 12px 0;opacity:.9;font-size:14px;">
+                Ada <strong>{{ $siswaAktifTanpaAkun }}</strong> siswa aktif yang belum memiliki akun login dari total {{ $totalSiswaAktif }} siswa.
+            </p>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                <div style="background:rgba(255,255,255,.15);padding:8px 12px;border-radius:8px;font-size:13px;">
+                    <i class="fas fa-check-circle"></i> {{ $siswaAktifDenganAkun }} Sudah Punya Akun
+                </div>
+                <div style="background:rgba(255,255,255,.15);padding:8px 12px;border-radius:8px;font-size:13px;">
+                    <i class="fas fa-envelope"></i> {{ $siswaEmailValid }} Email Valid
+                </div>
+            </div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <a href="{{ route('admin.akun.bulk-generate') }}" 
+               style="background:rgba(255,255,255,.2);color:white;padding:10px 16px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px;transition:all .3s;"
+               onmouseover="this.style.background='rgba(255,255,255,.3)'"
+               onmouseout="this.style.background='rgba(255,255,255,.2)'">
+                <i class="fas fa-users"></i> Generate Massal
+            </a>
+            <a href="{{ route('admin.siswa-aktif') }}" 
+               style="background:white;color:#667eea;padding:10px 16px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px;transition:all .3s;"
+               onmouseover="this.style.transform='translateY(-2px)'"
+               onmouseout="this.style.transform=''">
+                <i class="fas fa-list"></i> Lihat Siswa
+            </a>
+        </div>
+    </div>
+</div>
+@endif
+
 <!-- Aksi Cepat -->
 <div style="margin-bottom:24px;">
     <h3 style="margin:0 0 14px 0;font-size:16px;font-weight:600;color:#333;display:flex;align-items:center;gap:8px;">

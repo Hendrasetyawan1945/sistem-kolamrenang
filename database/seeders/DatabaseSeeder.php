@@ -17,21 +17,17 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create Admin User (if not exists)
-        User::firstOrCreate(
-            ['email' => 'admin@youthswimming.club'],
-            [
-                'name' => 'Admin Utama',
-                'password' => Hash::make('adminutama'),
-                'email_verified_at' => now(),
-            ]
-        );
-
+        // Seed kelas dan coach terlebih dahulu
+        $this->call(KelasSeeder::class);
+        
         // Seed siswa dan pembayaran
         $this->call(SiswaSeeder::class);
 
         // Seed catatan waktu
         $this->call(CatatanWaktuSeeder::class);
+
+        // Seed users (admin, coach, siswa)
+        $this->call(UserSeeder::class);
 
         // Seed paket kuota
         PaketKuota::create([

@@ -306,6 +306,7 @@
                     Keuangan
                 </a>
                 <ul class="submenu" id="keuangan">
+                    <li><a href="{{ route('admin.approval.pembayaran') }}"><i class="fas fa-check-circle"></i> Approval Pembayaran</a></li>
                     <li><a href="{{ route('admin.iuran-rutin') }}"><i class="fas fa-calendar-check"></i> Iuran Rutin</a></li>
                     <li><a href="{{ route('admin.paket-kuota') }}"><i class="fas fa-box"></i> Paket Kuota</a></li>
                     <li><a href="{{ route('admin.iuran-insidentil') }}"><i class="fas fa-exclamation-triangle"></i> Iuran Insidentil</a></li>
@@ -342,7 +343,7 @@
                     <li style="border-top:1px solid rgba(255,255,255,.15);margin-top:5px;padding-top:5px;">
                         <a href="{{ route('admin.kelas') }}" style="font-weight:600;"><i class="fas fa-chalkboard"></i> Kelas</a>
                     </li>
-                    <li><a href="{{ route('admin.coach') }}"><i class="fas fa-user-tie"></i> Coach</a></li>
+                    <li><a href="{{ route('admin.coach') }}"><i class="fas fa-user-tie"></i> Guru</a></li>
                 </ul>
             </li>
             
@@ -408,6 +409,13 @@
                 </ul>
             </li>
             
+            <li class="{{ request()->routeIs('admin.akun.*') ? 'active' : '' }}">
+                <a href="{{ route('admin.akun.index') }}">
+                    <i class="fas fa-user-cog"></i>
+                    Kelola Akun
+                </a>
+            </li>
+            
             <li>
                 <a href="#" class="dropdown-toggle" onclick="toggleSubmenu('pengaturan')">
                     <i class="fas fa-cog"></i>
@@ -415,7 +423,7 @@
                 </a>
                 <ul class="submenu" id="pengaturan">
                     <li><a href="{{ route('admin.kelas') }}"><i class="fas fa-chalkboard"></i> Kelas</a></li>
-                    <li><a href="{{ route('admin.coach') }}"><i class="fas fa-user-tie"></i> Coach</a></li>
+                    <li><a href="{{ route('admin.coach') }}"><i class="fas fa-user-tie"></i> Guru</a></li>
                     <li><a href="{{ route('admin.kolam') }}"><i class="fas fa-swimming-pool"></i> Kolam</a></li>
                     <li><a href="{{ route('admin.metode-pembayaran') }}"><i class="fas fa-credit-card"></i> Metode Pembayaran</a></li>
                     <li><a href="{{ route('admin.umum') }}"><i class="fas fa-globe"></i> Umum</a></li>

@@ -1,0 +1,20 @@
+=== SYSTEM INFO - 20260423_123107 ===
+Hostname: VM-12-126-opencloudos
+IP: 129.226.203.241
+Uptime:  12:31:08 up 1 day,  1:29,  1 user,  load average: 0.01, 0.01, 0.02
+Disk Usage: Filesystem      Size  Used Avail Use% Mounted on
+/dev/vda1        40G   11G   29G  28% /
+Memory:                total        used        free      shared  buff/cache   available
+Mem:           1.9Gi       1.6Gi        87Mi        39Mi       409Mi       274Mi
+Swap:          2.0Gi       605Mi       1.4Gi
+PHP Version: PHP 8.3.20 (cli) (built: Apr  8 2025 20:21:18) (NTS gcc x86_64)
+Laravel Version: Laravel Framework 13.5.0
+
+=== DATABASE STATS ===
+Total Users: 20
+Total Siswa: 18
+Active Sessions: 6
+
+=== SERVER STATUS ===
+Server PID: 434772
+Port 8001: 1 connections

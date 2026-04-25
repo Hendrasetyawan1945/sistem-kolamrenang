@@ -4,13 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Kelas extends Model
 {
     protected $table = 'kelas';
 
     protected $fillable = [
-        'nama_kelas', 'level', 'kapasitas', 'harga', 'deskripsi', 'aktif', 'coach_id', 'jadwal',
+        'nama', 'nama_kelas', 'level', 'kapasitas', 'harga', 'deskripsi', 'aktif', 'coach_id', 'jadwal',
+        'hari', 'jam_mulai', 'jam_selesai', 'kolam_id'
     ];
 
     protected $casts = [
@@ -38,6 +40,11 @@ class Kelas extends Model
         return self::$levelLabels[$this->level] ?? $this->level;
     }
 
+    public function getNamaAttribute(): string
+    {
+        return $this->nama_kelas;
+    }
+
     public function getJadwalStringAttribute(): string
     {
         if (empty($this->jadwal)) return '-';
@@ -49,8 +56,19 @@ class Kelas extends Model
         return $this->belongsTo(Coach::class);
     }
 
+    public function kolam(): BelongsTo
+    {
+        return $this->belongsTo(Kolam::class);
+    }
+
+    public function siswas(): HasMany
+    {
+        // Kolom di tabel siswas adalah 'kelas' (nama kelas), bukan 'kelas_id'
+        return $this->hasMany(Siswa::class, 'kelas', 'nama_kelas');
+    }
+
     public function jumlahSiswaAktif(): int
     {
-        return Siswa::where('status', 'aktif')->where('kelas', $this->nama_kelas)->count();
+        return $this->siswas()->where('status', 'aktif')->count();
     }
 }
